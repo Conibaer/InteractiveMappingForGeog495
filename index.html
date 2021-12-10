@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Interactive Web Mapping</title>
+    <title>Vaccination Rate By WA State Counties</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.js"></script>
@@ -55,7 +55,7 @@
 
         #features {
             top: 0;
-            height: 100px;
+            height: 125px;
             margin-top: 20px;
             width: 250px;
         }
@@ -64,7 +64,7 @@
             padding: 10px;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             line-height: 18px;
-            height: 210px;
+            height: 230px;
             margin-bottom: 40px;
             width: 150px;
         }
@@ -88,7 +88,7 @@
 <body>
     <div id="map"></div>
     <div class='map-overlay' id='features'>
-        <h2>US population density</h2>
+        <h2>WA Vaccination Rate by County</h2>
         <div id='text-escription'>
             <p>Hover over a state!</p>
         </div>
@@ -101,44 +101,46 @@
         const map = new mapboxgl.Map({
             container: 'map', // container ID
             style: 'mapbox://styles/mapbox/light-v10', // style URL
-            zoom: 3, // starting zoom
-            center: [-100, 40] // starting center
+            zoom: 6, // starting zoom
+            center: [-120, 47] // starting center
         });
 
         // load data and add as layer
         async function geojsonFetch() {
-            let response = await fetch('assets/stateData.geojson');
-            let stateData = await response.json();
+            let response = await fetch('assets/wa-covid-data-102521.geojson');
+            let stateDataWA = await response.json();
 
             map.on('load', function loadingData() {
-                map.addSource('stateData', {
+                map.addSource('stateDataWA', {
                     type: 'geojson',
-                    data: stateData
+                    data: stateDataWA
                 });
 
                 map.addLayer({
                     'id': 'stateData-layer',
                     'type': 'fill',
-                    'source': 'stateData',
+                    'source': 'stateDataWA',
                     'paint': {
                         'fill-color': [
                             'step',
-                            ['get', 'density'],
-                            '#FFEDA0',   // stop_output_0
-                            10,          // stop_input_0
-                            '#FED976',   // stop_output_1
-                            20,          // stop_input_1
-                            '#FEB24C',   // stop_output_2
-                            50,          // stop_input_2
-                            '#FD8D3C',   // stop_output_3
-                            100,         // stop_input_3
-                            '#FC4E2A',   // stop_output_4
-                            200,         // stop_input_4
-                            '#E31A1C',   // stop_output_5
-                            500,         // stop_input_5
-                            '#BD0026',   // stop_output_6
-                            1000,        // stop_input_6
-                            "#800026"    // stop_output_7
+                            ['get', 'fullyVaxPer10k'],
+                            '#fdfd7a',   // stop_output_0
+                            3200,          // stop_input_0
+                            '#dfeb68',   // stop_output_1
+                            3500,          // stop_input_1
+                            '#c1d957',   // stop_output_2
+                            4000,          // stop_input_2
+                            '#a4c746',   // stop_output_3
+                            4500,         // stop_input_3
+                            '#87b636',   // stop_output_4
+                            5000,         // stop_input_4
+                            '#69a427',   // stop_output_5
+                            5500,         // stop_input_5
+                            '#4a9218',   // stop_output_6
+                            6000,        // stop_input_6
+                            "#268106",    // stop_output_7
+                            6900,        // stop_input_7
+                            "#175800"    // stop_output_8
                         ],
                         'fill-outline-color': '#BBBBBB',
                         'fill-opacity': 0.7,
@@ -146,29 +148,31 @@
                 });
 
                 const layers = [
-                    '0-9',
-                    '10-19',
-                    '20-49',
-                    '50-99',
-                    '100-199',
-                    '200-499',
-                    '500-999',
-                    '1000 and more'
+                    '0-3200',
+                    '3200-3500',
+                    '3500-4000',
+                    '4000-4500',
+                    '4500-5000',
+                    '5000-5500',
+                    '5500-6000',
+                    '6000-6900',
+                    '6900 plus'
                 ];
                 const colors = [
-                    '#FFEDA070',
-                    '#FED97670',
-                    '#FEB24C70',
-                    '#FD8D3C70',
-                    '#FC4E2A70',
-                    '#E31A1C70',
-                    '#BD002670',
-                    '#80002670'
+                    '#fdfd7a',
+                    '#dfeb68',
+                    '#c1d957',
+                    '#a4c746',
+                    '#87b636',
+                    '#69a427',
+                    '#4a9218',
+                    '#268106',
+                    '#175800'
                 ];
 
                 // create legend
                 const legend = document.getElementById('legend');
-                legend.innerHTML = "<b>Population Density<br>(people/sq.mi.)</b><br><br>";
+                legend.innerHTML = "<b>Vaccination Rate<br>(Per 10k People)</b><br><br>";
 
 
                 layers.forEach((layer, i) => {
@@ -191,8 +195,8 @@
                     layers: ['stateData-layer']
                 });
                 document.getElementById('text-escription').innerHTML = state.length ?
-                    `<h3>${state[0].properties.name}</h3><p><strong><em>${state[0].properties.density}</strong> people per square mile</em></p>` :
-                    `<p>Hover over a state!</p>`;
+                    `<h3>${state[0].properties.name}</h3><p><strong><em>${state[0].properties.fullyVaxPer10k}</strong> Vaxed per 10k</em></p>` :
+                    `<p>Hover over a County!</p>`;
             });
         }
 
